@@ -5,8 +5,9 @@ export default function AdminLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <div>
-           dashboard {children}
+        <div className="min-h-screen flex ">
+            <div className="w-[14%] md:-w[8%] lg:w-[16%] xl:w-[14%] bg-red-300">Sidebar</div>
+            <div className="w-[86%] md:-w[92%] lg:w-[84%] xl:w-[86%] bg-blue-300">right side</div>
         </div>
     );
 }
