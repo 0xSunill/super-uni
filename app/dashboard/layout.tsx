@@ -1,5 +1,6 @@
 import { ModeToggle } from "@/components/ ModeToggle";
 import Menu from "@/components/Menu";
+import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -36,6 +37,8 @@ export default function AdminLayout({
 
 
             <main className="flex-1 min-w-0 overflow-auto p-6">
+
+                <Navbar />
                 <div className="">right side</div>
 
 
