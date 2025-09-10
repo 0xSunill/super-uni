@@ -35,7 +35,7 @@ const Navbar = () => {
                             <button onClick={dropDownHandler} className="flex items-center space-x-2 p-2 rounded-md  hover:bg-gray-300 dark:hover:bg-gray-800">
                                 <User className="w-5 h-5 " />
                             </button>
-                            {/* Dropdown Example (optional) */}
+                       
                             {dropDown && <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-black  border rounded-md shadow-lg">
                                 <a href="/profile" className="block px-4 py-2 text-sm  hover:bg-gray-300 dark:hover:bg-gray-800">Profile</a>
                                 <a href="/settings" className="block px-4 py-2 text-sm  hover:bg-gray-300 dark:hover:bg-gray-800">Settings</a>
