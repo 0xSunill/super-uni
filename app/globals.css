@@ -41,6 +41,18 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+
+  --color-lamaPurple: #c3bffa;
+  --color-lamaPurple-dark: #8b5cf6;
+
+
+  --color-lamaYellow: #fde68a;
+  --color-lamaYellow-dark: #eab308;
+
+
+  --color-lamaSky: #bae6fd;
+  --color-lamaSky-dark: #0ea5e9;
 }
 
 :root {
@@ -116,6 +128,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
