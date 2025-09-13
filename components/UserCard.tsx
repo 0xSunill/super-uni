@@ -6,7 +6,6 @@ const UserCard = ({ type }: { type: string }) => {
             <span className='font-bold  lg:text-2xl capitalize'> {type}</span>
             <div className='lg:text-2xl font-bold'>100</div>
             <div className='text-sm text-gray-600 dark:text-gray-400'>Total {type}</div>
-
         </div>
     )
 }

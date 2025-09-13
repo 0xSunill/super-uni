@@ -8,210 +8,160 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id        String   @id @db.Uuid
-  email     String?  @unique
-  rollNo    String   @unique
-  name      String?
-  role      Role     @default(STUDENT)
+model Admin {
+  id       String @id @default(uuid())
+  username String @unique
+}
+
+model Student {
+  id         String     @id @default(uuid())
+  rollNo     String     @unique
+  name       String
+  email      String     @unique
+  department Department
+  year       Year       @relation(fields: [yearId], references: [id])
+  yearId     String
+  phone      String?    @unique
+  gender     Gender
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  marks       Mark[]
+  attendances Attendance[]
+  subjects    Subject[]
+  wallets     Wallet[]
+
+  @@index([rollNo])
+}
+
+model Wallet {
+  id        String   @id @default(uuid())
+  address   String   @unique
+  currency  String   @default("USDC")
+  balance   Float    @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  marks     Mark[]
+
+  teacher   Teacher? @relation(fields: [teacherId], references: [id])
+  teacherId String?
+
+  student   Student? @relation(fields: [studentId], references: [id])
+  studentId String?
+}
+
+model Teacher {
+  id         String     @id @default(uuid())
+  name       String
+  email      String     @unique
+  department Department
+  phone      String?    @unique
+  experience Int?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  subjects Subject[]
+  lessons  Lesson[]
+  wallets  Wallet[]
+}
+
+model Attendance {
+  id        String    @id @default(uuid())
+  studentId String
+  subjectId String
+  date      DateTime
+  status    AttStatus
+
+  student Student @relation(fields: [studentId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+
+  @@unique([studentId, subjectId, date])
+  @@index([date])
 }
 
 model Mark {
   id        String   @id @default(uuid())
   studentId String
-  subject   String
+  subjectId String
   score     Int
   date      DateTime @default(now())
 
-  student User @relation(fields: [studentId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+
+  @@index([studentId])
+  @@index([subjectId])
 }
 
-enum Role {
-  ADMIN
-  STUDENT
+model Year {
+  id       String    @id @default(uuid())
+  year     Int       @unique
+  students Student[]
+  subjects Subject[]
 }
 
-// model User {
-//   id        String   @id @default(uuid())
-//   email     String   @unique
-//   name      String
-//   role      Role
-//   createdAt DateTime @default(now())
+model Subject {
+  id         String     @id @default(uuid())
+  code       String     @unique
+  name       String
+  department Department
+  yearId     String
 
-//   student Student?
-//   teacher Teacher?
-//   wallet  Wallet?
+  teachers    Teacher[]
+  students    Student[]
+  attendances Attendance[]
+  marks       Mark[]
+  year        Year         @relation(fields: [yearId], references: [id])
+  lessons     Lesson[]
 
-//   // Invoices where user is the student (payer)
-//   // invoices  Invoice[] @relation("StudentInvoices")
+  @@index([code])
+}
 
-//   // Invoices where user is the merchant (receiver)
-//   merchantInvoices Invoice[] @relation("MerchantInvoices")
-// }
+model Lesson {
+  id        String   @id @default(uuid())
+  subjectId String
+  day       Day
+  startTime DateTime
+  endTime   DateTime
+  room      String?
 
-// model Student {
-//   id         String  @id
-//   rollNo     String  @unique
-//   department String?
-//   year       Int?
-//   section    String?
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  teacher   Teacher? @relation(fields: [teacherId], references: [id])
+  teacherId String?
 
-//   user        User         @relation(fields: [id], references: [id])
-//   enrollments Enrollment[]
-//   attendance  Attendance[]
-//   grades      Grade[]
-//   invoices    Invoice[]
-// }
+  @@index([subjectId, day])
+}
 
-// model Teacher {
-//   id         String  @id
-//   department String?
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-//   user          User            @relation(fields: [id], references: [id])
-//   classSchedule ClassSchedule[]
-// }
+enum Gender {
+  MALE
+  FEMALE
+}
 
-// model Course {
-//   id         String  @id @default(uuid())
-//   code       String  @unique
-//   name       String
-//   department String?
-//   credits    Int?
+enum Department {
+  MCA
+  MSC
+  OTHERS
+}
 
-//   schedule    ClassSchedule[]
-//   enrollments Enrollment[]
-//   grades      Grade[]
-//   attendance  Attendance[]
-// }
+enum Day {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
 
-// model ClassSchedule {
-//   id        String   @id @default(uuid())
-//   course    Course   @relation(fields: [courseId], references: [id])
-//   courseId  String
-//   teacher   Teacher  @relation(fields: [teacherId], references: [id])
-//   teacherId String
-//   dayOfWeek Int
-//   startTime DateTime
-//   endTime   DateTime
-//   room      String?
-// }
-
-// model Enrollment {
-//   id        String  @id @default(uuid())
-//   student   Student @relation(fields: [studentId], references: [id])
-//   studentId String
-//   course    Course  @relation(fields: [courseId], references: [id])
-//   courseId  String
-
-//   @@unique([studentId, courseId])
-// }
-
-// model Attendance {
-//   id        String           @id @default(uuid())
-//   student   Student          @relation(fields: [studentId], references: [id])
-//   studentId String
-//   course    Course           @relation(fields: [courseId], references: [id])
-//   courseId  String
-//   date      DateTime
-//   status    AttendanceStatus
-
-//   @@unique([studentId, courseId, date])
-// }
-
-// model Grade {
-//   id        String  @id @default(uuid())
-//   student   Student @relation(fields: [studentId], references: [id])
-//   studentId String
-//   course    Course  @relation(fields: [courseId], references: [id])
-//   courseId  String
-//   term      String
-//   marks     Float
-
-//   @@unique([studentId, courseId, term])
-// }
-
-// model CalendarEvent {
-//   id          String    @id @default(uuid())
-//   title       String
-//   description String?
-//   startTime   DateTime
-//   endTime     DateTime
-//   eventType   EventType @default(other)
-// }
-
-// model Wallet {
-//   id       String @id @default(uuid())
-//   user     User   @relation(fields: [userId], references: [id])
-//   userId   String @unique // ✅ one user → one wallet
-//   chain    String
-//   address  String @unique
-//   currency String @default("USDC")
-
-//   ledgerEntries LedgerEntry[]
-// }
-
-// model LedgerEntry {
-//   id        String    @id @default(uuid())
-//   wallet    Wallet    @relation(fields: [walletId], references: [id])
-//   walletId  String
-//   direction Direction
-//   amount    BigInt
-//   reason    String?
-//   refType   String?
-//   refId     String?
-//   txHash    String?
-//   createdAt DateTime  @default(now())
-// }
-
-// model Invoice {
-//   id String @id @default(uuid())
-
-//   // Student who pays
-//   student   Student @relation(fields: [studentId], references: [id])
-//   studentId String
-
-//   // Merchant who receives
-//   merchant   User   @relation("MerchantInvoices", fields: [merchantId], references: [id])
-//   merchantId String
-
-//   amount    BigInt
-//   currency  String        @default("USDC")
-//   status    InvoiceStatus @default(pending)
-//   dueDate   DateTime?
-//   createdAt DateTime      @default(now())
-// }
-
-// enum Role {
-//   student
-//   teacher
-//   admin
-//   merchant
-// }
-
-// enum AttendanceStatus {
-//   present
-//   absent
-//   late
-// }
-
-// enum EventType {
-//   holiday
-//   exam
-//   seminar
-//   other
-// }
-
-// enum Direction {
-//   credit
-//   debit
-// }
-
-// enum InvoiceStatus {
-//   pending
-//   paid
-//   expired
-//   refunded
-// }
+enum AttStatus {
+  CANCELLED
+  ABSENT
+  PRESENT
+}
