@@ -13,10 +13,10 @@ model User {
   email     String?  @unique
   rollNo    String   @unique
   name      String?
-  role      Role     @default(CLIENT)
+  role      Role     @default(STUDENT)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  marks Mark[]
+  marks     Mark[]
 }
 
 model Mark {
@@ -31,7 +31,7 @@ model Mark {
 
 enum Role {
   ADMIN
-  CLIENT
+  STUDENT
 }
 
 // model User {
