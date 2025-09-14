@@ -45,7 +45,7 @@ const Page = () => {
 
             {/* Right sidebar */}
             <div className="w-full lg:w-1/3 flex flex-col gap-6">
-                <div className=" mb-5 rounded-2xl shadow-md p-4 ">
+                <div className=" rounded-2xl shadow-md px-4 pb-4">
                     <MiniCalendar />
                 </div>
                 <div className=" rounded-2xl shadow-md p-4">

@@ -1,6 +1,6 @@
 
 import { role } from "@/data"
-import { Role } from "@prisma/client"
+
 import {
   Home,
   Users,
@@ -15,7 +15,9 @@ import {
   Calendar,
   MessageCircle,
   Megaphone,
-  Wallet
+  Wallet,
+  Settings,
+  LogOut
 } from "lucide-react"
 
 const menuItems = [
@@ -115,6 +117,37 @@ const menuItems = [
   }
 ]
 
+
+
+
+
+
+
+const otherItems = [
+  {
+    title: "Other",
+    items: [
+      {
+        icon: User,
+        label: "Profile",
+        href: "/profile",
+      },
+      {
+        icon: Settings,
+        label: "Settings",
+        href: "/settings",
+        // visible: ["admin", "teacher", "student", "parent"],
+      },
+      {
+        icon: LogOut,
+        label: "Logout",
+        href: "/logout",
+        // visible: ["admin", "teacher", "student", "parent"],
+      },
+    ]
+  }
+]
+
 const Menu = () => {
   return (
     <div>
@@ -139,6 +172,32 @@ const Menu = () => {
                   </a>
                 )
               }
+            })}
+          </div>
+        </div>
+      ))}
+
+      {otherItems.map((section) => (
+        <div key={section.title} className="mb-6">
+          <h2 className="px-3 hidden lg:block text-xs font-semibold uppercase tracking-wider mb-3">
+            {section.title}
+          </h2>
+          <div className="space-y-1">
+
+            {section.items.map((item) => {
+
+              const Icon = item.icon
+              return (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="flex items-center px-3 py-2 text-sm font-medium  hover:bg-gray-300 dark:hover:bg-gray-800 rounded-md"
+                >
+                  <Icon className="w-5 h-5 " />
+                  <span className="hidden ml-3 lg:block">{item.label}</span>
+                </a>
+              )
+
             })}
           </div>
         </div>
