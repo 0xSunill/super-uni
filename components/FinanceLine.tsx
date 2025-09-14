@@ -24,7 +24,7 @@ export const FinanceLine: React.FC<{ data?: typeof sample; height?: number | str
 
     const incomeColor = isDark ? "#9EE7FF" : "#60A5FA";
     const expenseColor = isDark ? "#D8C7FF" : "#C084FC";
-    const bg = isDark ? "#071025" : "#fff";
+    const bg = isDark ? "#1c1c1c" : "#fff";
     const text = isDark ? "#e6eef8" : "#0f172a";
     const sub = isDark ? "#9aa4b2" : "#6b7280";
 

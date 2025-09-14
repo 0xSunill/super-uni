@@ -28,7 +28,7 @@ export const StudentDonut: React.FC<{ data?: Row[]; height?: number | string }> 
   const DARK = {
     boys: ["#083358", "#60A5FA"],
     girls: ["#5f3206", "#FACC15"],
-    card: "#071025",
+    card: "#1c1c1c",
     text: "#e6eef8",
     sub: "#9aa4b2",
   };

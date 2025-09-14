@@ -25,7 +25,7 @@ export const AttendanceBar: React.FC<{ data?: typeof sample; height?: number | s
 
     const presentColor = isDark ? "#FACC15" : "#FBBF24";
     const absentColor = isDark ? "#60A5FA" : "#93C5FD";
-    const bg = isDark ? "#071025" : "#ffffff";
+    const bg = isDark ? "#1c1c1c" : "#ffffff";
     const text = isDark ? "#e6eef8" : "#0f172a";
     const sub = isDark ? "#9aa4b2" : "#6b7280";
 

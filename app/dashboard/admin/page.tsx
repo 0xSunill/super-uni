@@ -1,6 +1,8 @@
 // app/page.tsx
+import AnnouncementsList from '@/components/AnnouncementsList'
 import { AttendanceBar } from '@/components/AttendanceBar'
 import { FinanceLine } from '@/components/FinanceLine'
+import MiniCalendar from '@/components/MiniCalendar'
 import { StudentDonut } from '@/components/StudentDonut'
 import UserCard from '@/components/UserCard'
 import React from 'react'
@@ -43,11 +45,11 @@ const Page = () => {
 
             {/* Right sidebar */}
             <div className="w-full lg:w-1/3 flex flex-col gap-6">
-                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-4 h-60">
-                    Right side block 1
+                <div className=" mb-5 rounded-2xl shadow-md p-4 ">
+                    <MiniCalendar />
                 </div>
-                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-4 h-60">
-                    Right side block 2
+                <div className=" rounded-2xl shadow-md p-4">
+                    <AnnouncementsList />
                 </div>
             </div>
         </div>
