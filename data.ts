@@ -1,1 +1,1 @@
-export let role = 'student' 
+export let role = 'teacher' 
