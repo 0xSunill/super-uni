@@ -7,7 +7,7 @@ import React from 'react'
 
 const Page = () => {
     return (
-        <div className="p-6 flex gap-6 flex-col lg:flex-row min-h-screen">
+        <div className="p-6 flex gap-6 flex-col lg:flex-row min-h-screen overflow-x-hidden">
             {/* Left content */}
             <div className="w-full lg:w-2/3 space-y-6">
                 {/* Top user cards */}
@@ -18,12 +18,12 @@ const Page = () => {
 
                 {/* Students + Attendance */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="col-span-1 flex">
+                    <div className="md:col-span-1 flex">
                         <div className="w-full h-full">
                             <StudentDonut />
                         </div>
                     </div>
-                    <div className="col-span-2 flex">
+                    <div className="md:col-span-2 flex">
                         <div className="w-full h-full">
                             <AttendanceBar />
                         </div>
