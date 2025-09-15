@@ -9,7 +9,7 @@ import React from 'react'
 
 const Page = () => {
     return (
-        <div className="p-6 flex gap-6 flex-col lg:flex-row min-h-screen overflow-x-hidden">
+        <div className=" p-1 lg:p-6 flex gap-6 flex-col lg:flex-row min-h-screen overflow-x-hidden">
             {/* Left content */}
             <div className="w-full lg:w-2/3 space-y-6">
                 {/* Top user cards */}
@@ -45,10 +45,10 @@ const Page = () => {
 
             {/* Right sidebar */}
             <div className="w-full lg:w-1/3 flex flex-col gap-6">
-                <div className=" rounded-2xl shadow-md px-4 pb-4">
+                <div className=" rounded-2xl shadow-md px-1 lg:px-4 lg:pb-4">
                     <MiniCalendar />
                 </div>
-                <div className=" rounded-2xl shadow-md p-4">
+                <div className=" rounded-2xl shadow-md p-1 lg:p-4 h-full">
                     <AnnouncementsList />
                 </div>
             </div>

@@ -137,7 +137,7 @@ export default function TimetableCalendar({
 
     return (
         <div
-            className="rounded-2xl shadow-md p-2"
+            className="rounded-2xl shadow-md p-2 lg:mb-[600px]"
             style={{ background: isDark ? "#1c1c1c" : "#ffffff", color: isDark ? "#e6eef8" : "#0f172a" }}
         >
             <div className="flex items-center justify-between mb-3">
