@@ -9,11 +9,11 @@ export default function Page() {
             <div className="max-w-[1200px] mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 ">
-                        {/* Responsive: component will switch view & height by viewport */}
+                       
                         <TimetableCalendar
-                            height={480}          // desktop fallback (px)
+                            height={480}         
                             mobileBreakpoint={768}
-                            mobileHeight={380}    // height used on small screens
+                            mobileHeight={380}    
                             initialView="timeGridWeek"
                         />
                     </div>
