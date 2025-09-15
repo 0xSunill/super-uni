@@ -4,7 +4,14 @@
 import React from "react";
 import { useTheme } from "next-themes";
 import TimetableCalendar from "./TimetableCalendar"; // optional calendar, pass events if available
-
+export type TimetableEvent = {
+    id: string;
+    title: string;
+    start: string; // ISO date string
+    end?: string;  // ISO date string (optional)
+    location?: string;
+    description?: string;
+};
 export type Teacher = {
     id: string;
     name: string;
@@ -16,7 +23,7 @@ export type Teacher = {
     address?: string;
     avatar?: string;
     bio?: string;
-    events?: any[]; // optional timetable events compatible with your calendar component
+    events?: TimetableEvent[]; // optional timetable events compatible with your calendar component
 };
 
 export default function TeacherProfile({ teacher }: { teacher: Teacher }) {

@@ -5,6 +5,15 @@ import React from "react";
 import { useTheme } from "next-themes";
 import TimetableCalendar from "./TimetableCalendar"; // optional
 
+export type TimetableEvent = {
+    id: string;
+    title: string;
+    start: string; // ISO date string
+    end?: string;  // ISO date string (optional)
+    location?: string;
+    description?: string;
+};
+
 export type Student = {
     id: string;
     name: string;
@@ -15,7 +24,7 @@ export type Student = {
     avatar?: string;
     attendancePct?: number;
     grades?: { subject: string; grade: string }[];
-    events?: any[]; // timetable events
+    events?: TimetableEvent[]; // timetable events
 };
 
 export default function StudentProfile({ student }: { student: Student }) {
