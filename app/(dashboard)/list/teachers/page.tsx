@@ -2,6 +2,7 @@
 "use client";
 
 import { role } from "@/data";
+import Link from "next/link";
 import React, { useMemo, useState } from "react";
 
 export type Teacher = {
@@ -103,17 +104,20 @@ export default function TeacherList({ data = sampleTeachers }: { data?: Teacher[
                         </thead>
                         <tbody>
                             {current.map((t) => (
-                                <tr key={t.id} className="border-b last:border-b-0 border-slate-100 dark:border-slate-700/40">
-                                    <td className="py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500">
-                                                {t.name.split(" ").map(n => n[0]).slice(0, 2).join("")}
+
+                                <tr key={t.id} className="border-b rounded-2xl  hover:bg-gray-300 dark:hover:bg-gray-900 last:border-b-0 border-slate-100 dark:border-slate-700/40">
+                                    <td className="p-4 ">
+                                        <Link href={`/teacher/${t.id}`} className="">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500">
+                                                    {t.name.split(" ").map(n => n[0]).slice(0, 2).join("")}
+                                                </div>
+                                                <div>
+                                                    <div className="font-medium text-slate-900 dark:text-slate-100">{t.name}</div>
+                                                    <div className="text-xs text-slate-500 dark:text-slate-300/60">{t.email}</div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div className="font-medium text-slate-900 dark:text-slate-100">{t.name}</div>
-                                                <div className="text-xs text-slate-500 dark:text-slate-300/60">{t.email}</div>
-                                            </div>
-                                        </div>
+                                        </Link>
                                     </td>
 
                                     <td className="py-4">{t.teacherId}</td>
