@@ -1,4 +1,3 @@
-// app/page.tsx
 import AnnouncementsList from '@/components/AnnouncementsList'
 import { AttendanceBar } from '@/components/AttendanceBar'
 import { FinanceLine } from '@/components/FinanceLine'

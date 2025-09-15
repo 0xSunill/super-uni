@@ -1,4 +1,3 @@
-// components/TimetableCalendar.tsx
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
@@ -35,7 +34,8 @@ export default function TimetableCalendar({
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [heightPx, setHeightPx] = useState<number>(typeof height === "number" ? height : desktopHeight);
     const [minWidth, setMinWidth] = useState<string | number>(minWidthForScroll);
-    const calendarRef = useRef<any>(null);
+    // Avoid 'any' by typing the ref as an object that optionally provides getApi()
+    const calendarRef = useRef<FullCalendar | null>(null);
     const [currentView, setCurrentView] = useState<"timeGridWeek" | "timeGridDay">(initialView);
 
     useEffect(() => setMounted(true), []);
@@ -146,7 +146,7 @@ export default function TimetableCalendar({
                 <div className="flex gap-2">
                     <button
                         onClick={() => {
-                            const cal = calendarRef.current?.getApi();
+                            const cal = calendarRef.current?.getApi?.();
                             cal?.changeView("timeGridWeek");
                             setCurrentView("timeGridWeek");
                         }}
@@ -158,7 +158,7 @@ export default function TimetableCalendar({
 
                     <button
                         onClick={() => {
-                            const cal = calendarRef.current?.getApi();
+                            const cal = calendarRef.current?.getApi?.();
                             cal?.changeView("timeGridDay");
                             setCurrentView("timeGridDay");
                         }}
@@ -175,7 +175,7 @@ export default function TimetableCalendar({
                 {/* inner container has minWidth > viewport to force horizontal scrolling on small screens */}
                 <div style={{ minWidth: isMobile ? minWidthCss : "100%", height: `${heightPx}px` }}>
                     <FullCalendar
-                        ref={(ref) => (calendarRef.current = ref)}
+                        ref={calendarRef}
                         plugins={[timeGridPlugin, interactionPlugin, dayGridPlugin]}
                         initialView={currentView}
                         headerToolbar={false}

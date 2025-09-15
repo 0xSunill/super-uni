@@ -1,5 +1,4 @@
-// app/(dashboard)/layout.tsx
-// import { ModeToggle } from "@/components/ModeToggle";
+
 import { ModeToggle } from "@/components/ ModeToggle";
 import Menu from "@/components/Menu";
 import Navbar from "@/components/Navbar";

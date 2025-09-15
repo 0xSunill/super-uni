@@ -1,6 +1,5 @@
-// components/Navbar.tsx
 "use client";
-import { Menu as MenuIcon, Home, Users, Bell, Mail, X, Search, Settings, Wallet, LogOut, User } from "lucide-react";
+import { Menu as MenuIcon, Home,  Bell, Mail, X,  Settings, Wallet, LogOut, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Menu from "./Menu"; // reuse the same Menu component
@@ -40,8 +39,8 @@ export default function Navbar() {
                         {/* center: logo / X for all screens */}
                         <div className="flex-1 lg:hidden flex items-center justify-center">
                             <Link href="/" className="flex items-center gap-2" onClick={close}>
-                                {/* Small centered 'X' or logo - keep size compact */}
-                                <Link href="/" className="flex items-center justify-center gap-2.5">
+
+                                <div className="flex items-center justify-center gap-2.5">
                                     <Image
                                         src="/logo1.png"
                                         alt="logo"
@@ -50,7 +49,7 @@ export default function Navbar() {
                                         className="w-12 h-12"
                                     />
                                     <span className="hidden lg:block font-bold text-lg">SUPER UNI</span>
-                                </Link>
+                                </div>
                                 <span className="hidden sm:block lg:hidden font-semibold">SUPER UNI</span>
                                 <span className="hidden lg:block font-bold text-lg">SUPER UNI</span>
                             </Link>

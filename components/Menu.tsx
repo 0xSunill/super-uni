@@ -1,4 +1,4 @@
-// components/Menu.tsx
+
 import { role } from "@/data";
 import {
   Home,
@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 type Item = {
-  icon: any;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
   href: string;
   visible?: string[];
@@ -68,7 +68,7 @@ const Menu: React.FC<MenuProps> = ({ labelsVisible = false }) => {
           </h2>
 
           <div className="space-y-1">
-            {section.items.map((item: any) => {
+            {section.items.map((item: Item) => {
               const visible = !item.visible || item.visible.includes(role);
               if (!visible) return null;
               const Icon = item.icon;
