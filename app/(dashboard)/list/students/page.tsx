@@ -1,6 +1,7 @@
 // components/StudentList.tsx
 "use client";
 
+import { role } from "@/data";
 import React, { useMemo, useState } from "react";
 
 export type Student = {
@@ -68,7 +69,9 @@ export default function StudentList({ data = sampleStudents }: { data?: Student[
                         value={query}
                         onChange={(e) => { setQuery(e.target.value); setPage(1); }}
                     />
-                    <button className="bg-indigo-500 text-white px-3 py-2 rounded-md text-sm">+ Add</button>
+                    {
+                        role === 'admin' && <button className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">Add Student</button>
+                    }
                 </div>
             </div>
 

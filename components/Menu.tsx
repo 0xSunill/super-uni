@@ -118,11 +118,6 @@ const menuItems = [
 ]
 
 
-
-
-
-
-
 const otherItems = [
   {
     title: "Other",
@@ -151,7 +146,8 @@ const otherItems = [
 const Menu = () => {
   return (
     <div>
-      {menuItems.map((section) => (
+      
+      { menuItems.map((section) => (
         <div key={section.title} className="mb-6">
           <h2 className="px-3 hidden lg:block text-xs font-semibold uppercase tracking-wider mb-3">
             {section.title}

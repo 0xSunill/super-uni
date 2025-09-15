@@ -1,6 +1,7 @@
 // components/TeacherList.tsx
 "use client";
 
+import { role } from "@/data";
 import React, { useMemo, useState } from "react";
 
 export type Teacher = {
@@ -78,7 +79,9 @@ export default function TeacherList({ data = sampleTeachers }: { data?: Teacher[
                         aria-label="Search teachers"
                     />
                     <div className="flex gap-2">
-                        <button className="bg-indigo-500 text-white px-3 py-2 rounded-md text-sm">+ Add</button>
+                        {
+                            role === 'admin' && <button className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">Add Teacher</button>
+                        }
                     </div>
                 </div>
             </div>
