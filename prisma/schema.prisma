@@ -13,29 +13,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-  model Admin {
+model Admin {
   id       String @id @default(uuid())
   username String @unique
 }
 
 model Student {
-  id         String     @id @default(uuid())
-  rollNo     String     @unique
-  name       String
-  email      String     @unique
-  department Department
-  year       Year       @relation(fields: [yearId], references: [id])
-  yearId     String
-  phone      String?    @unique
-  gender     Gender
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-
+  id          String       @id @default(uuid())
+  rollNo      String       @unique
+  name        String
+  email       String       @unique
+  department  Department
+  year        Year         @relation(fields: [yearId], references: [id])
+  yearId      String
+  phone       String?      @unique
+  gender      Gender
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   marks       Mark[]
   attendances Attendance[]
   subjects    Subject[]
   wallets     Wallet[]
-
   @@index([rollNo])
 }
 
@@ -55,14 +53,14 @@ model Wallet {
 }
 
 model Teacher {
-  id         String     @id @default(uuid())
+  id         String       @id @default(uuid())
   name       String
-  email      String     @unique
+  email      String       @unique
   department Department
-  phone      String?    @unique
+  phone      String?      @unique
   experience Int?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 
   subjects Subject[]
   lessons  Lesson[]
