@@ -5,15 +5,29 @@ import { role } from "@/data";
 import Link from "next/link";
 import React, { useMemo, useState, useEffect } from "react";
 
-export type Teacher = {
+export type ClientTeacher = {
     id: string;
     name: string;
     email: string;
     teacherId: string;
     subjects: string;
     phone?: string;
-    // address?: string;
+    address?: string;
     avatar?: string;
+
+};
+
+type ServerTeacher = {
+    id: string;
+    name: string;
+    email?: string | null;
+    teacherId?: string | null;
+    subjects?: { name: string }[] | null;
+    lessons?: { name?: string; title?: string }[] | null;
+    wallets?: unknown[] | null;
+    phone?: string | null;
+    address?: string | null;
+    img?: string | null;
 };
 
 function usePagination<T>(items: T[], pageSize: number) {
@@ -26,7 +40,6 @@ function usePagination<T>(items: T[], pageSize: number) {
     return { page, setPage, total, current };
 }
 
-/* Modal same as your code */
 function Modal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title?: string; children: React.ReactNode }) {
     if (!open) return null;
     return (
@@ -43,16 +56,14 @@ function Modal({ open, onClose, title, children }: { open: boolean; onClose: () 
     );
 }
 
-export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher[] }) {
-    const [teachers, setTeachers] = useState<Teacher[]>(data);
+export default function TeacherList({ data = [] as ClientTeacher[], serverTotal: initialServerTotal }: { data?: ClientTeacher[]; serverTotal?: number | null }) {
+    const [teachers, setTeachers] = useState<ClientTeacher[]>(data);
     const [query, setQuery] = useState("");
     const pageSize = 7;
 
-    // optional: keep serverTotal if you want to show server count (passed from server)
-    const [serverTotal, setServerTotal] = useState<number | null>(null);
+    const [serverTotal, setServerTotal] = useState<number | null>(initialServerTotal ?? null);
     const [loading, setLoading] = useState(false);
 
-    // If you want client-side live search against API, uncomment/use this effect.
     useEffect(() => {
         let cancelled = false;
         async function load() {
@@ -62,20 +73,22 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
                 const res = await fetch(`/api/teachers?search=${q}`);
                 if (!res.ok) throw new Error("Fetch failed");
                 const json = await res.json();
-                const mapped = (json.data ?? []).map((t: any) => ({
+
+                const serverData = (json.data ?? []) as ServerTeacher[];
+                const mapped = serverData.map((t) => ({
                     id: t.id,
                     name: t.name,
-                    email: t.email,
-                    teacherId: (t as any).teacherId ?? t.id,
-                    subjects: (t.subjects || []).map((s: any) => s.name).join(", "),
-                    // classes: (t.classes || []).map((c: any) => c.name).join(", "),
+                    email: t.email ?? "",
+                    teacherId: t.teacherId ?? t.id,
+                    subjects: (t.subjects ?? []).map((s) => s.name).join(", "),
                     phone: t.phone ?? "",
-                    avatar: (t as any).img ?? undefined,
-                })) as Teacher[];
+                    address: t.address ?? "",
+                    avatar: t.img ?? undefined,
+                })) as ClientTeacher[];
 
                 if (!cancelled) {
                     setTeachers(mapped);
-                    setServerTotal(json.count ?? mapped.length);
+                    setServerTotal(typeof json.count === "number" ? json.count : mapped.length);
                 }
             } catch (err) {
                 console.error(err);
@@ -84,16 +97,14 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
             }
         }
 
-        // only call API when query is non-empty; otherwise use server-provided initial data
         if (query.trim().length > 0) {
             load();
         } else {
-            // optional: reset to initial server data when query cleared
-            // setTeachers(data);
-            setServerTotal(null);
+            setTeachers(data);
+            setServerTotal(initialServerTotal ?? null);
         }
         return () => { cancelled = true; };
-    }, [query]);
+    }, [query, data, initialServerTotal]);
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
@@ -105,7 +116,6 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
 
     const { page, setPage, total, current } = usePagination(filtered, pageSize);
 
-    // modal & form states (same as your code)
     const [openAdd, setOpenAdd] = useState(false);
     const [form, setForm] = useState({ name: "", email: "", teacherId: "", subjects: "", phone: "", address: "" });
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -123,7 +133,6 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
         return e;
     }
 
-    // create via API (recommended) — server will persist and return new teacher
     async function handleAdd(e?: React.FormEvent) {
         e?.preventDefault();
         const v = validate();
@@ -137,24 +146,21 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
             });
             if (!res.ok) throw new Error('Failed to create');
             const json = await res.json();
-            // json.data is the created teacher mapped by server
             setTeachers((s) => [json.data, ...s]);
             resetForm();
             setOpenAdd(false);
             setPage(1);
         } catch (err) {
             console.error(err);
-            // fallback: create locally (not persisted)
             const id = String(Date.now());
-            const newTeacher: Teacher = {
+            const newTeacher: ClientTeacher = {
                 id,
                 name: form.name,
                 email: form.email,
                 teacherId: form.teacherId,
                 subjects: form.subjects,
-
                 phone: form.phone,
-
+                address: form.address,
             };
             setTeachers((s) => [newTeacher, ...s]);
             resetForm();
@@ -162,8 +168,7 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
         }
     }
 
-    // delete via API
-    async function onDelete(t: Teacher) {
+    async function onDelete(t: ClientTeacher) {
         if (!confirm(`Delete ${t.name}?`)) return;
         try {
             const res = await fetch(`/api/teachers/${t.id}`, { method: 'DELETE' });
@@ -171,16 +176,18 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
             setTeachers((s) => s.filter(x => x.id !== t.id));
         } catch (err) {
             console.error(err);
-            // fallback local delete
             setTeachers((s) => s.filter(x => x.id !== t.id));
         }
     }
 
     return (
         <div className="rounded-2xl dark:bg-[#1c1c1c] p-4 shadow-2xl">
-            {/* header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">All Teachers</h2>
+                <div className="flex items-baseline gap-3">
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">All Teachers</h2>
+                    {serverTotal !== null && <div className="text-sm text-slate-500 dark:text-slate-300">({serverTotal} total)</div>}
+                    {loading && <div className="text-xs text-slate-400">Searching…</div>}
+                </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                     <input
@@ -200,8 +207,7 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
                 </div>
             </div>
 
-            {/* the rest of your render remains unchanged — use current / page / total etc. */}
-            {/* Desktop table */}
+
             <div className="hidden md:block">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm min-w-[900px]">
@@ -211,7 +217,6 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
                                 <th className="py-3">Teacher ID</th>
                                 <th className="py-3">Subjects</th>
                                 <th className="py-3">Phone</th>
-                                {/* <th className="py-3">Address</th> */}
                                 <th className="py-3">Actions</th>
                             </tr>
                         </thead>
@@ -233,9 +238,7 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
                                     </td>
                                     <td className="py-4">{t.teacherId}</td>
                                     <td className="py-4 max-w-xs">{t.subjects}</td>
-                                    {/* <td className="py-4">{t.classes}</td> */}
                                     <td className="py-4">{t.phone}</td>
-
                                     <td className="py-4">
                                         <div className="flex items-center gap-2">
                                             <Link href={`/teachers/${t.id}`} className="p-2 rounded-full bg-slate-100 dark:bg-[#000000]" aria-label={`view ${t.name}`}>
@@ -252,7 +255,6 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
                     </table>
                 </div>
 
-                {/* pagination */}
                 <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div className="text-sm text-slate-500 dark:text-slate-300">
                         Showing {Math.min((page - 1) * pageSize + 1, filteredLength(filtered))} - {Math.min(page * pageSize, filtered.length)} of {filtered.length}
@@ -265,15 +267,12 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
                 </div>
             </div>
 
-            {/* Mobile and Modal code unchanged... */}
-            {/* For brevity, you can keep the rest of your mobile UI and modal form as-is */}
+            {/* Modal Add */}
             <Modal open={openAdd} onClose={() => setOpenAdd(false)} title="Add Teacher">
                 <form onSubmit={handleAdd}>
-                    {/* Add your form fields here */}
                     <div className="flex flex-col gap-4">
                         <input type="text" placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="border rounded-md px-3 py-2" />
                         <input type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="border rounded-md px-3 py-2" />
-                        {/* Add other form fields as needed */}
                     </div>
                     <div className="mt-4 flex justify-end gap-2">
                         <button type="button" onClick={() => setOpenAdd(false)} className="px-3 py-2 bg-gray-200 rounded-md">Cancel</button>
@@ -281,7 +280,6 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
                     </div>
                 </form>
             </Modal>
-
         </div>
     );
 }
