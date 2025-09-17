@@ -224,7 +224,7 @@ export default function TeacherList({ data = [] as ClientTeacher[], serverTotal:
                             {current.map((t) => (
                                 <tr key={t.id} className="border-b hover:bg-gray-200 dark:hover:bg-[#000000] last:border-b-0 border-slate-100 dark:border-[#000000]">
                                     <td className="p-4">
-                                        <Link href={`/teachers/${t.id}`}>
+                                        <Link href={`/teacher/${t.id}`}>
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-[#000000] flex items-center justify-center text-slate-500">
                                                     {t.name.split(" ").map(n => n[0]).slice(0, 2).join("")}
