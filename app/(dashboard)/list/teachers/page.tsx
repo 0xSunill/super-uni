@@ -1,7 +1,8 @@
+// app/(dashboard)/list/teachers/page.tsx
 import React from "react";
 import prisma from "@/lib/prisma";
 import TeacherList from "@/components/TeacherList";
-import { Wallet } from "lucide-react";
+import { Prisma } from "@prisma/client";
 
 function mapTeacher(t: any) {
     return {
@@ -10,12 +11,13 @@ function mapTeacher(t: any) {
         email: t.email,
         teacherId: (t as any).teacherId ?? t.id,
         subjects: (t.subjects ?? []).map((s: any) => s.name).join(", "),
-        lessons: (t.lessons ?? []).map((l: any) => l.name).join(", "), // adjust field
-        department: t.department ?? "N/A", // if enum
-        wallets: t.wallets ?? [],          // plural
+        lessons: (t.lessons ?? []).map((l: any) => l.name ?? l.title ?? "").join(", "),
+        department: t.department ?? "N/A",
+        wallets: t.wallets ?? [],
         phone: t.phone ?? "",
         address: (t as any).address ?? "",
         avatar: (t as any).img ?? undefined,
+        // classes: (t.classes ?? []).map((c: any) => c.name).join(", "),
     };
 }
 
@@ -24,19 +26,22 @@ export default async function Page({ searchParams }: { searchParams?: Record<str
     const take = 50;
     const skip = (page - 1) * take;
 
-    const where = searchParams?.search
-        ? { name: { contains: String(searchParams.search), mode: "insensitive" } }
-        : {};
+    const rawSearch = (searchParams?.search ?? "").toString().trim();
+
+
+    const where: Prisma.TeacherWhereInput | undefined = rawSearch
+        ? {
+            OR: [
+                { name: { contains: rawSearch, mode: "insensitive" as Prisma.QueryMode } },
+                { email: { contains: rawSearch, mode: "insensitive" as Prisma.QueryMode } },
+                { subjects: { some: { name: { contains: rawSearch, mode: "insensitive" as Prisma.QueryMode } } } },
+            ],
+        }
+        : undefined;
 
     const teachers = await prisma.teacher.findMany({
         where,
-        include: {
-            subjects: true,
-            lessons: true,
-            wallets: true,
-            // if department is a relation:
-            // department: true
-        },
+        include: { subjects: true, lessons: true, wallets: true },
         orderBy: { createdAt: "desc" },
         take,
         skip,

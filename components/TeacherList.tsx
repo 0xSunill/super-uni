@@ -11,9 +11,8 @@ export type Teacher = {
     email: string;
     teacherId: string;
     subjects: string;
-    classes: string;
     phone?: string;
-    address?: string;
+    // address?: string;
     avatar?: string;
 };
 
@@ -69,9 +68,8 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
                     email: t.email,
                     teacherId: (t as any).teacherId ?? t.id,
                     subjects: (t.subjects || []).map((s: any) => s.name).join(", "),
-                    classes: (t.classes || []).map((c: any) => c.name).join(", "),
+                    // classes: (t.classes || []).map((c: any) => c.name).join(", "),
                     phone: t.phone ?? "",
-                    address: t.address ?? "",
                     avatar: (t as any).img ?? undefined,
                 })) as Teacher[];
 
@@ -101,7 +99,7 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
         const q = query.trim().toLowerCase();
         if (!q) return teachers;
         return teachers.filter((t) =>
-            `${t.name} ${t.email} ${t.subjects} ${t.classes}`.toLowerCase().includes(q)
+            `${t.name} ${t.email} ${t.subjects} `.toLowerCase().includes(q)
         );
     }, [teachers, query]);
 
@@ -109,11 +107,11 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
 
     // modal & form states (same as your code)
     const [openAdd, setOpenAdd] = useState(false);
-    const [form, setForm] = useState({ name: "", email: "", teacherId: "", subjects: "", classes: "", phone: "", address: "" });
+    const [form, setForm] = useState({ name: "", email: "", teacherId: "", subjects: "", phone: "", address: "" });
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     function resetForm() {
-        setForm({ name: "", email: "", teacherId: "", subjects: "", classes: "", phone: "", address: "" });
+        setForm({ name: "", email: "", teacherId: "", subjects: "", phone: "", address: "" });
         setErrors({});
     }
 
@@ -154,9 +152,9 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
                 email: form.email,
                 teacherId: form.teacherId,
                 subjects: form.subjects,
-                classes: form.classes,
+
                 phone: form.phone,
-                address: form.address,
+
             };
             setTeachers((s) => [newTeacher, ...s]);
             resetForm();
@@ -212,9 +210,8 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
                                 <th className="py-3">Info</th>
                                 <th className="py-3">Teacher ID</th>
                                 <th className="py-3">Subjects</th>
-                                <th className="py-3">Classes</th>
                                 <th className="py-3">Phone</th>
-                                <th className="py-3">Address</th>
+                                {/* <th className="py-3">Address</th> */}
                                 <th className="py-3">Actions</th>
                             </tr>
                         </thead>
@@ -236,9 +233,9 @@ export default function TeacherList({ data = [] as Teacher[] }: { data?: Teacher
                                     </td>
                                     <td className="py-4">{t.teacherId}</td>
                                     <td className="py-4 max-w-xs">{t.subjects}</td>
-                                    <td className="py-4">{t.classes}</td>
+                                    {/* <td className="py-4">{t.classes}</td> */}
                                     <td className="py-4">{t.phone}</td>
-                                    <td className="py-4">{t.address}</td>
+
                                     <td className="py-4">
                                         <div className="flex items-center gap-2">
                                             <Link href={`/teachers/${t.id}`} className="p-2 rounded-full bg-slate-100 dark:bg-[#000000]" aria-label={`view ${t.name}`}>
