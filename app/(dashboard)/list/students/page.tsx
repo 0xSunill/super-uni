@@ -1,4 +1,3 @@
-// components/StudentList.tsx
 "use client";
 
 import { role } from "@/data";

@@ -208,7 +208,7 @@ export default function TeacherList({ data = [] as ClientTeacher[], serverTotal:
             </div>
 
 
-            <div className="hidden md:block">
+            <div className="">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm min-w-[900px]">
                         <thead>
