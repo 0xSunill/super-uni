@@ -7,9 +7,9 @@ import { Prisma } from "@prisma/client";
 
 
 type ServerTeacher = Prisma.TeacherGetPayload<{
-  include: { subjects: true; lessons: true; wallets: true }; 
+  include: { subjects: true; lessons: true; wallet: true };
 }> & {
-  classes?: string | null; 
+  classes?: string | null;
   bio?: string | null;
   img?: string | null;
   teacherId?: string | null;
@@ -22,7 +22,7 @@ async function getTeacher(id: string): Promise<ServerTeacher | null> {
     include: {
       subjects: true,
       lessons: true,
-      wallets: true,
+      wallet: true,
     },
   });
   return t as ServerTeacher | null;
@@ -54,7 +54,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     // address: teacher.address ?? "",
     avatar: teacher.img ?? undefined,
     // lessons: (teacher.lessons ?? []).map((l) => l.name ?? l.title ?? "").join(", "),
-    wallets: teacher.wallets ?? [],
+    walletaddress: teacher.wallet ?? "",
   };
 
   return (
