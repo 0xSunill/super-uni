@@ -14,6 +14,7 @@ export type ClientTeacher = {
     phone?: string;
     address?: string;
     avatar?: string;
+    walletAddress?: string | null;
 };
 
 type ServerTeacher = {

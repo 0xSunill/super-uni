@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import TeacherList, { ClientTeacher } from "@/components/TeacherList";
 
 type ServerTeacher = Prisma.TeacherGetPayload<{
-    include: { subjects: true; lessons: true; wallets: true };
+    include: { subjects: true; lessons: true; wallet: true };
 }> & {
     department?: string | null;
     address?: string | null;
@@ -23,6 +23,7 @@ function mapTeacher(t: ServerTeacher): ClientTeacher {
         phone: t.phone ?? "",
         address: t.address ?? "",
         avatar: t.img ?? undefined,
+        walletAddress: t.wallet ? t.wallet.address : null
     };
 }
 
@@ -71,7 +72,7 @@ export default async function Page({
 
     const teachers = await prisma.teacher.findMany({
         where,
-        include: { subjects: true, lessons: true, wallets: true },
+        include: { subjects: true, lessons: true, wallet: true },
         orderBy: { createdAt: "desc" },
         take,
         skip,

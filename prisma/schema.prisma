@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,21 +13,23 @@ model Admin {
 }
 
 model Student {
-  id          String       @id @default(uuid())
-  rollNo      String       @unique
-  name        String
-  email       String       @unique
-  department  Department
-  year        Year         @relation(fields: [yearId], references: [id])
-  yearId      String
-  phone       String?      @unique
-  gender      Gender
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id         String     @id @default(uuid())
+  rollNo     String     @unique
+  name       String
+  email      String     @unique
+  department Department
+  year       Year       @relation(fields: [yearId], references: [id])
+  yearId     String
+  phone      String?    @unique
+  gender     Gender
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
   marks       Mark[]
   attendances Attendance[]
   subjects    Subject[]
-  wallets     Wallet[]
+  wallet      Wallet?      @relation("StudentWallet")
+
   @@index([rollNo])
 }
 
@@ -40,26 +41,25 @@ model Wallet {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  teacher   Teacher? @relation(fields: [teacherId], references: [id])
-  teacherId String?
-
-  student   Student? @relation(fields: [studentId], references: [id])
-  studentId String?
+  teacher   Teacher? @relation("TeacherWallet", fields: [teacherId], references: [id])
+  teacherId String?  @unique
+  student   Student? @relation("StudentWallet", fields: [studentId], references: [id])
+  studentId String?  @unique
 }
 
 model Teacher {
-  id         String       @id @default(uuid())
+  id         String     @id @default(uuid())
   name       String
-  email      String       @unique
+  email      String     @unique
   department Department
-  phone      String?      @unique
+  phone      String?    @unique
   experience Int?
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   subjects Subject[]
   lessons  Lesson[]
-  wallets  Wallet[]
+  wallet   Wallet?   @relation("TeacherWallet")
 }
 
 model Attendance {
