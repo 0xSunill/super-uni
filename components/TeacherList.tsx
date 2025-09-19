@@ -14,7 +14,6 @@ export type ClientTeacher = {
     phone?: string;
     address?: string;
     avatar?: string;
-
 };
 
 type ServerTeacher = {
@@ -56,7 +55,17 @@ function Modal({ open, onClose, title, children }: { open: boolean; onClose: () 
     );
 }
 
-export default function TeacherList({ data = [] as ClientTeacher[], serverTotal: initialServerTotal }: { data?: ClientTeacher[]; serverTotal?: number | null }) {
+export default function TeacherList({
+    data = [] as ClientTeacher[],
+    serverTotal: initialServerTotal,
+    enableServerDelete = false,
+}: {
+    data?: ClientTeacher[];
+    serverTotal?: number | null;
+    // If true, the page will contain hidden server-rendered forms with ids like "delete-form-<id>"
+    // Client will submit those forms to trigger server actions instead of calling /api.
+    enableServerDelete?: boolean;
+}) {
     const [teachers, setTeachers] = useState<ClientTeacher[]>(data);
     const [query, setQuery] = useState("");
     const pageSize = 7;
@@ -103,15 +112,15 @@ export default function TeacherList({ data = [] as ClientTeacher[], serverTotal:
             setTeachers(data);
             setServerTotal(initialServerTotal ?? null);
         }
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+        };
     }, [query, data, initialServerTotal]);
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
         if (!q) return teachers;
-        return teachers.filter((t) =>
-            `${t.name} ${t.email} ${t.subjects} `.toLowerCase().includes(q)
-        );
+        return teachers.filter((t) => `${t.name} ${t.email} ${t.subjects} `.toLowerCase().includes(q));
     }, [teachers, query]);
 
     const { page, setPage, total, current } = usePagination(filtered, pageSize);
@@ -136,15 +145,18 @@ export default function TeacherList({ data = [] as ClientTeacher[], serverTotal:
     async function handleAdd(e?: React.FormEvent) {
         e?.preventDefault();
         const v = validate();
-        if (Object.keys(v).length) { setErrors(v); return; }
+        if (Object.keys(v).length) {
+            setErrors(v);
+            return;
+        }
 
         try {
-            const res = await fetch('/api/teachers', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const res = await fetch("/api/teachers", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(form),
             });
-            if (!res.ok) throw new Error('Failed to create');
+            if (!res.ok) throw new Error("Failed to create");
             const json = await res.json();
             setTeachers((s) => [json.data, ...s]);
             resetForm();
@@ -152,7 +164,7 @@ export default function TeacherList({ data = [] as ClientTeacher[], serverTotal:
             setPage(1);
         } catch (err) {
             console.error(err);
-            const id = String(Date.now());
+            const id = `local-${String(Date.now())}`;
             const newTeacher: ClientTeacher = {
                 id,
                 name: form.name,
@@ -168,15 +180,29 @@ export default function TeacherList({ data = [] as ClientTeacher[], serverTotal:
         }
     }
 
-    async function onDelete(t: ClientTeacher) {
+    async function onDeleteClientFallback(t: ClientTeacher) {
         if (!confirm(`Delete ${t.name}?`)) return;
+
+        // If server-side hidden form exists, submit it instead of calling API
+        if (enableServerDelete) {
+            const formId = `delete-form-${t.id}`;
+            const formEl = document.getElementById(formId) as HTMLFormElement | null;
+            if (formEl) {
+                // submit will trigger the server action
+                formEl.submit();
+                return;
+            }
+            // If form not found, fallback to API delete
+        }
+
         try {
-            const res = await fetch(`/api/teachers/${t.id}`, { method: 'DELETE' });
-            if (!res.ok) throw new Error('Delete failed');
-            setTeachers((s) => s.filter(x => x.id !== t.id));
+            const res = await fetch(`/api/teachers/${encodeURIComponent(t.id)}`, { method: "DELETE" });
+            if (!res.ok) throw new Error("Delete failed");
+            setTeachers((s) => s.filter((x) => x.id !== t.id));
+            setServerTotal((prev) => (typeof prev === "number" ? Math.max(0, prev - 1) : prev));
         } catch (err) {
             console.error(err);
-            setTeachers((s) => s.filter(x => x.id !== t.id));
+            alert("Failed to delete teacher. See console for details.");
         }
     }
 
@@ -194,11 +220,14 @@ export default function TeacherList({ data = [] as ClientTeacher[], serverTotal:
                         className="w-full sm:w-64 border rounded-md px-3 py-2 text-sm bg-white dark:bg-[#000000] border-slate-200 dark:border-[#000000]"
                         placeholder="Search teachers..."
                         value={query}
-                        onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+                        onChange={(e) => {
+                            setQuery(e.target.value);
+                            setPage(1);
+                        }}
                         aria-label="Search teachers"
                     />
                     <div className="flex gap-2">
-                        {role === 'admin' && (
+                        {role === "admin" && (
                             <button onClick={() => { resetForm(); setOpenAdd(true); }} className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
                                 + Add Teacher
                             </button>
@@ -206,7 +235,6 @@ export default function TeacherList({ data = [] as ClientTeacher[], serverTotal:
                     </div>
                 </div>
             </div>
-
 
             <div className="">
                 <div className="overflow-x-auto">
@@ -227,7 +255,7 @@ export default function TeacherList({ data = [] as ClientTeacher[], serverTotal:
                                         <Link href={`/teacher/${t.id}`}>
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-[#000000] flex items-center justify-center text-slate-500">
-                                                    {t.name.split(" ").map(n => n[0]).slice(0, 2).join("")}
+                                                    {t.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                                                 </div>
                                                 <div>
                                                     <div className="font-medium text-slate-900 dark:text-slate-100">{t.name}</div>
@@ -244,7 +272,9 @@ export default function TeacherList({ data = [] as ClientTeacher[], serverTotal:
                                             <Link href={`/teachers/${t.id}`} className="p-2 rounded-full bg-slate-100 dark:bg-[#000000]" aria-label={`view ${t.name}`}>
                                                 <svg className="w-4 h-4 text-slate-700 dark:text-slate-100" viewBox="0 0 24 24"><path fill="currentColor" d="M12 5c-7 0-11 7-11 7s4 7 11 7 11-7 11-7-4-7-11-7zm0 12a5 5 0 110-10 5 5 0 010 10z" /></svg>
                                             </Link>
-                                            <button onClick={() => onDelete(t)} className="p-2 rounded-full bg-red-50 hover:bg-red-100" aria-label={`delete ${t.name}`}>
+
+                                            {/* Delete: will submit hidden server form if enabled, otherwise call API */}
+                                            <button onClick={() => onDeleteClientFallback(t)} className="p-2 rounded-full bg-red-50 hover:bg-red-100" aria-label={`delete ${t.name}`}>
                                                 <svg className="w-4 h-4 text-red-500" viewBox="0 0 24 24"><path fill="currentColor" d="M9 3v1H4v2h16V4h-5V3H9zM6 8v12a2 2 0 002 2h8a2 2 0 002-2V8H6z" /></svg>
                                             </button>
                                         </div>
@@ -284,4 +314,6 @@ export default function TeacherList({ data = [] as ClientTeacher[], serverTotal:
     );
 }
 
-function filteredLength<T>(arr: T[]) { return arr.length; }
+function filteredLength<T>(arr: T[]) {
+    return arr.length;
+}
