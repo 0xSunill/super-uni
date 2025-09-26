@@ -19,9 +19,6 @@ export type ClientStudent = {
   walletAddress?: string | null;
 };
 
-
-
-
 export default function StudentList({ data = [] as ClientStudent[],
   serverTotal: initialServerTotal }: {
     data?: ClientStudent[];
