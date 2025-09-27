@@ -13,7 +13,7 @@ const Page = () => {
             <div className="w-full lg:w-2/3 space-y-6">
                 {/* Top user cards */}
                 <div className="grid grid-cols-2 gap-6">
-                    <UserCard type="students" />
+                    <UserCard type="students" /> 
                     <UserCard type="teachers" />
                 </div>
 

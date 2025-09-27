@@ -177,7 +177,7 @@ export default function StudentProfile({ student }: { student: ClientStudent }) 
 
                                         {student.walletaddress ? (
                                             <a
-                                                href={`https://explorer.example.com/address/${student.walletaddress}`}
+                                                href={`https://explorer.solana.com/address/${student.walletaddress}`}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="hover:underline"
