@@ -84,7 +84,7 @@ export default function SubjectList({
                     <th className="py-3">Year</th>
                     <th className="py-3">Students</th>
                     <th className="py-3">Teachers</th>
-                    <th className="py-3">Lessons</th>
+                    <th className="py-3">Classes</th>
                     {/* <th className="py-3">Marks</th> */}
                     <th className="py-3">Attendance</th>
                     <th className="py-3">Actions</th>
