@@ -7,30 +7,69 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Admin {
-  id       String @id @default(uuid())
-  username String @unique
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  username     String?  @unique     
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Optional 1–1 profiles
+  student   Student? @relation(fields: [studentId], references: [id])
+  studentId String?  @unique
+
+  teacher   Teacher? @relation(fields: [teacherId], references: [id])
+  teacherId String?  @unique
 }
 
 model Student {
-  id         String     @id @default(uuid())
-  rollNo     String     @unique
+  id         String   @id @default(uuid())
+  rollNo     String   @unique
   name       String
-  email      String     @unique
+  // email moved to User
   department Department
-  year       Year       @relation(fields: [yearId], references: [id])
+  year       Year     @relation(fields: [yearId], references: [id])
   yearId     String
-  phone      String?    @unique
+  phone      String?  @unique
   gender     Gender
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   marks       Mark[]
   attendances Attendance[]
   subjects    Subject[]
-  wallet      Wallet?      @relation("StudentWallet")
+  wallet      Wallet?  @relation("StudentWallet")
+  
+  // Back-reference to User (this was missing)
+  user        User?
 
   @@index([rollNo])
+}
+
+model Teacher {
+  id         String   @id @default(uuid())
+  name       String
+  // email moved to User
+  department Department
+  phone      String?  @unique
+  experience Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  subjects Subject[]
+  lessons  Lesson[]
+  wallet   Wallet?   @relation("TeacherWallet")
+  
+  // Back-reference to User (this was missing)
+  user     User?
 }
 
 model Wallet {
@@ -45,21 +84,6 @@ model Wallet {
   teacherId String?  @unique
   student   Student? @relation("StudentWallet", fields: [studentId], references: [id])
   studentId String?  @unique
-}
-
-model Teacher {
-  id         String     @id @default(uuid())
-  name       String
-  email      String     @unique
-  department Department
-  phone      String?    @unique
-  experience Int?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-
-  subjects Subject[]
-  lessons  Lesson[]
-  wallet   Wallet?   @relation("TeacherWallet")
 }
 
 model Attendance {
