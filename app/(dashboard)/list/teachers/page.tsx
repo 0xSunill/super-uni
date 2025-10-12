@@ -33,14 +33,10 @@ export async function deleteTeacherAction(formData: FormData) {
     if (!id) throw new Error("Missing id");
 
     try {
-        // If relations block deletion, delete them first:
-        // await prisma.lesson.deleteMany({ where: { teacherId: id } });
-        // await prisma.wallet.deleteMany({ where: { teacherId: id } });
-
+      
         await prisma.teacher.delete({ where: { id } });
 
-        // Revalidate the list page so it refreshes server-side content
-        revalidatePath("/(dashboard)/list/teachers");
+         revalidatePath("/(dashboard)/list/teachers");
     } catch (err: any) {
         console.error("deleteTeacherAction error:", err);
         if (err?.code === "P2025") throw new Error("Teacher not found");
@@ -80,17 +76,11 @@ export default async function Page({
 
     const clientData = teachers.map((t) => mapTeacher(t as ServerTeacher));
 
-    // Render page: TeacherList (client) + hidden server-rendered forms (one per teacher).
-    // Client will find and submit these forms when user clicks delete.
-
     return (
         <div className="rounded-2xl dark:bg-[#1c1c1c] p-4 shadow-2xl">
             <TeacherList data={clientData} serverTotal={teachers.length} enableServerDelete={true} />
 
-            {/* Hidden server-rendered forms for server actions.
-          They must not include client event handlers. They are plain forms that submit
-          to the server action (deleteTeacherAction). The client will call .submit() on them.
-      */}
+       
             <div aria-hidden style={{ display: "none" }}>
                 {clientData.map((t) => (
                     <form
