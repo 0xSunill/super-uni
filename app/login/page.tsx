@@ -23,8 +23,7 @@ export default function LoginPage() {
     setLoading(false);
     if (!res) return setError("Unexpected error");
     if (res.error) return setError(res.error);
-    // success: redirect to dashboard or callbackUrl
-    router.push("/dashboard");
+    router.push("/admin");
   }
 
   return (

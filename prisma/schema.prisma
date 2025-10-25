@@ -14,18 +14,18 @@ enum Role {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String?   @unique
-  username     String?   @unique
+  id           String  @id @default(cuid())
+  email        String? @unique
+  username     String? @unique
   passwordHash String?
-  role         Role      @default(STUDENT)  // keep your roles
+  role         Role    @default(STUDENT) // keep your roles
 
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // NextAuth relations
-  accounts     Account[]
-  sessions     Session[]
+  accounts Account[]
+  sessions Session[]
 
   // Student/Teacher links
   student   Student? @relation(fields: [studentId], references: [id])
@@ -35,18 +35,18 @@ model User {
 }
 
 model Account {
-  id                 String   @id @default(cuid())
-  userId             String
-  provider           String
-  providerAccountId  String
-  type               String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  type              String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -70,47 +70,46 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
 model Student {
-  id         String   @id @default(uuid())
-  rollNo     String   @unique
+  id         String     @id @default(uuid())
+  rollNo     String     @unique
   name       String
   // email moved to User
   department Department
-  year       Year     @relation(fields: [yearId], references: [id])
+  year       Year       @relation(fields: [yearId], references: [id])
   yearId     String
-  phone      String?  @unique
+  phone      String?    @unique
   gender     Gender
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   marks       Mark[]
   attendances Attendance[]
   subjects    Subject[]
-  wallet      Wallet?  @relation("StudentWallet")
-  
+  wallet      Wallet?      @relation("StudentWallet")
+
   // Back-reference to User (this was missing)
-  user        User?
+  user User?
 
   @@index([rollNo])
 }
 
 model Teacher {
-  id         String   @id @default(uuid())
+  id         String     @id @default(uuid())
   name       String
   // email moved to User
   department Department
-  phone      String?  @unique
+  phone      String?    @unique
   experience Int?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   subjects Subject[]
   lessons  Lesson[]
   wallet   Wallet?   @relation("TeacherWallet")
-  
+
   // Back-reference to User (this was missing)
-  user     User?
+  user User?
 }
 
 model Wallet {

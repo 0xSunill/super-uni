@@ -38,11 +38,10 @@ async function main() {
 
     // Create Teachers
     const teacher1 = await prisma.teacher.upsert({
-      where: { email: "alice.teacher@example.com" },
+      where: { phone: "9876543210" },
       update: {},
       create: {
         name: "Alice Johnson",
-        email: "alice.teacher@example.com",
         department: Department.MCA,
         phone: "9876543210",
         experience: 5,
@@ -50,11 +49,10 @@ async function main() {
     });
 
     const teacher2 = await prisma.teacher.upsert({
-      where: { email: "bob.teacher@example.com" },
+      where: { phone: "9123456780" },
       update: {},
       create: {
         name: "Bob Smith",
-        email: "bob.teacher@example.com",
         department: Department.MSC,
         phone: "9123456780",
         experience: 3,
@@ -93,7 +91,6 @@ async function main() {
       create: {
         rollNo: "MCA001",
         name: "John Doe",
-        email: "john.doe@example.com",
         department: Department.MCA,
         yearId: year1.id,
         phone: "9998887777",
@@ -108,12 +105,36 @@ async function main() {
       create: {
         rollNo: "MSC001",
         name: "Jane Roe",
-        email: "jane.roe@example.com",
         department: Department.MSC,
         yearId: year2.id,
         phone: "8887776666",
         gender: Gender.FEMALE,
         subjects: { connect: [{ id: subject2.id }] },
+      },
+    });
+
+    // User accounts for students (email belongs here)
+    await prisma.user.upsert({
+      where: { email: "john.doe@example.com" },
+      update: {},
+      create: {
+        email: "john.doe@example.com",
+        role: Role.STUDENT,
+        username: "john.doe",
+        passwordHash: await bcrypt.hash("password", 12),
+        studentId: student1.id,
+      },
+    });
+
+    await prisma.user.upsert({
+      where: { email: "jane.roe@example.com" },
+      update: {},
+      create: {
+        email: "jane.roe@example.com",
+        role: Role.STUDENT,
+        username: "jane.roe",
+        passwordHash: await bcrypt.hash("password", 12),
+        studentId: student2.id,
       },
     });
 
