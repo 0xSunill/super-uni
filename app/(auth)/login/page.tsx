@@ -1,27 +1,98 @@
-// ===============================
-// app/(auth)/login/page.tsx
-// Beautiful, role-based login page with redirects:
-// - Admin  -> /admin
-// - Student -> /{studentRollNo}
-// - Teacher -> /teacher/{teacherId}
-// Stack: Next.js App Router + Tailwind + framer-motion + lucide-react (optional)
-// ===============================
-
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { LogIn, GraduationCap, UserCog, BadgeCheck } from "lucide-react";
 
-/** Small pill for choosing a role */
-function RolePill({ active, label, icon: Icon, onClick }: { active: boolean; label: string; icon: any; onClick: () => void }) {
+// Reusable themed components (no global CSS changes)
+function ThemedCard({
+  isDark,
+  children,
+}: {
+  isDark?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className="rounded-2xl shadow-md p-2"
+      style={{
+        background: isDark ? "#1c1c1c" : "#ffffff",
+        color: isDark ? "#e6eef8" : "#0f172a",
+      }}
+    >
+      <div className="rounded-xl p-6">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function ThemedInput(
+  props: React.InputHTMLAttributes<HTMLInputElement> & { isDark?: boolean }
+) {
+  const { isDark, className, ...rest } = props;
+  return (
+    <input
+      {...rest}
+      className={[
+        "w-full rounded-lg px-3 py-2 outline-none transition",
+        isDark
+          ? "bg-[#111213] text-[#e6eef8] placeholder:text-[#8a94a6] border border-[#2a2a2a] focus:ring-2 focus:ring-[#3b82f6]/50"
+          : "bg-white text-[#0f172a] placeholder:text-[#64748b] border border-[#e5e7eb] focus:ring-2 focus:ring-[#3b82f6]/40",
+        className || "",
+      ].join(" ")}
+    />
+  );
+}
+
+function ThemedSelect(
+  props: React.SelectHTMLAttributes<HTMLSelectElement> & { isDark?: boolean }
+) {
+  const { isDark, className, ...rest } = props;
+  return (
+    <select
+      {...rest}
+      className={[
+        "w-full rounded-lg px-3 py-2 outline-none transition",
+        isDark
+          ? "bg-[#111213] text-[#e6eef8] border border-[#2a2a2a] focus:ring-2 focus:ring-[#3b82f6]/50"
+          : "bg-white text-[#0f172a] border border-[#e5e7eb] focus:ring-2 focus:ring-[#3b82f6]/40",
+        className || "",
+      ].join(" ")}
+    />
+  );
+}
+
+type Role = "ADMIN" | "STUDENT" | "TEACHER";
+
+function RolePill({
+  active,
+  label,
+  icon: Icon,
+  onClick,
+  isDark,
+}: {
+  active: boolean;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+  onClick: () => void;
+  isDark?: boolean;
+}) {
+  const inactiveBg = isDark ? "#111213" : "#ffffff";
+  const inactiveText = isDark ? "#e6eef8" : "#0f172a";
+  const inactiveBorder = isDark ? "#2a2a2a" : "#e5e7eb";
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-full transition border ${
-        active ? "bg-black text-white border-black" : "bg-white text-gray-800 border-gray-300 hover:border-black"
-      }`}
+      className="flex items-center gap-2 px-4 py-2 rounded-full transition border"
+      style={
+        active
+          ? { background: "#0b0b0b", color: "#ffffff", borderColor: "#0b0b0b" }
+          : { background: inactiveBg, color: inactiveText, borderColor: inactiveBorder }
+      }
     >
       <Icon className="h-4 w-4" />
       <span className="font-medium">{label}</span>
@@ -29,15 +100,16 @@ function RolePill({ active, label, icon: Icon, onClick }: { active: boolean; lab
   );
 }
 
-export default function LoginPage() {
+export default function LoginPage({ isDark = false }: { isDark?: boolean }) {
   const router = useRouter();
-  type Role = "ADMIN" | "STUDENT" | "TEACHER";
+  const searchParams = useSearchParams();
+
   const [role, setRole] = useState<Role>("STUDENT");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Form state
-  const [email, setEmail] = useState(""); // for admin/teacher (if you use email login)
+  const [email, setEmail] = useState(""); // for admin/teacher
   const [password, setPassword] = useState("");
   const [rollNo, setRollNo] = useState(""); // for students
 
@@ -45,10 +117,14 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
     try {
       const body: any = { role, password };
       if (role === "STUDENT") body.rollNo = rollNo.trim();
       else body.email = email.trim();
+
+      const redirect = searchParams.get("redirect");
+      if (redirect) body.redirect = redirect;
 
       const res = await fetch("/api/login", {
         method: "POST",
@@ -57,18 +133,12 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.message || "Login failed");
-      }
+      if (!res.ok) throw new Error(data?.message || "Login failed");
 
-      // Expecting { redirect: string }
-      if (data?.redirect) {
-        router.push(data.redirect);
-      } else {
-        throw new Error("No redirect returned by server");
-      }
+      if (data?.redirect) router.push(data.redirect);
+      else throw new Error("No redirect returned by server");
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message ?? "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -77,47 +147,72 @@ export default function LoginPage() {
   const isStudent = role === "STUDENT";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-100 via-white to-zinc-100 flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: isDark ? "#0f0f10" : "#f8fafc" }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-xl"
       >
-        <div className="bg-white shadow-xl rounded-3xl p-8 border border-zinc-200">
+        <ThemedCard isDark={isDark}>
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-2xl bg-black text-white"><LogIn className="h-5 w-5"/></div>
-            <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>
+            <div
+              className="p-2 rounded-2xl"
+              style={{ background: "#0b0b0b", color: "#ffffff" }}
+            >
+              <LogIn className="h-5 w-5" />
+            </div>
+            <h1 className="text-2xl font-semibold">Sign in</h1>
           </div>
 
-          {/* Role selector */}
           <div className="flex flex-wrap gap-2 mb-8">
-            <RolePill active={role === "STUDENT"} label="Student" icon={GraduationCap} onClick={() => setRole("STUDENT")} />
-            <RolePill active={role === "TEACHER"} label="Teacher" icon={BadgeCheck} onClick={() => setRole("TEACHER")} />
-            <RolePill active={role === "ADMIN"} label="Admin" icon={UserCog} onClick={() => setRole("ADMIN")} />
+            <RolePill
+              isDark={isDark}
+              active={role === "STUDENT"}
+              label="Student"
+              icon={GraduationCap}
+              onClick={() => setRole("STUDENT")}
+            />
+            <RolePill
+              isDark={isDark}
+              active={role === "TEACHER"}
+              label="Teacher"
+              icon={BadgeCheck}
+              onClick={() => setRole("TEACHER")}
+            />
+            <RolePill
+              isDark={isDark}
+              active={role === "ADMIN"}
+              label="Admin"
+              icon={UserCog}
+              onClick={() => setRole("ADMIN")}
+            />
           </div>
 
           <form onSubmit={onSubmit} className="space-y-4">
             {isStudent ? (
               <div>
                 <label className="block text-sm font-medium mb-1">Roll number</label>
-                <input
+                <ThemedInput
+                  isDark={isDark}
                   value={rollNo}
                   onChange={(e) => setRollNo(e.target.value)}
                   placeholder="e.g. MCA001"
-                  className="w-full border border-zinc-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                   required
                 />
               </div>
             ) : (
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
-                <input
+                <ThemedInput
+                  isDark={isDark}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   type="email"
-                  className="w-full border border-zinc-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                   required
                 />
               </div>
@@ -125,33 +220,50 @@ export default function LoginPage() {
 
             <div>
               <label className="block text-sm font-medium mb-1">Password</label>
-              <input
+              <ThemedInput
+                isDark={isDark}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 type="password"
-                className="w-full border border-zinc-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                 required
               />
             </div>
 
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl p-2">{error}</div>
+              <div
+                className="text-sm rounded-lg p-2 border"
+                style={{
+                  background: isDark ? "#2a1a1a" : "#fef2f2",
+                  borderColor: isDark ? "#5a2a2a" : "#fecaca",
+                  color: isDark ? "#fecaca" : "#7f1d1d",
+                }}
+              >
+                {error}
+              </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-black text-white py-2 font-medium hover:opacity-90 disabled:opacity-60"
+              className="w-full rounded-lg py-2 font-medium transition"
+              style={{
+                background: "#0b0b0b",
+                color: "#ffffff",
+                opacity: loading ? 0.7 : 1,
+              }}
             >
               {loading ? "Signing in…" : `Sign in as ${role.toLowerCase()}`}
             </button>
           </form>
 
-          <p className="text-xs text-zinc-500 mt-6">
-            Tip: Admin → <code>email+password</code>, Teacher → <code>email+password</code>, Student → <code>rollNo+password</code>.
-          </p>
-        </div>
+          <div className="mt-6 flex items-center justify-between text-sm">
+            <p style={{ color: isDark ? "#aab4c3" : "#475569" }}>No account?</p>
+            <Link href="/register" className="font-medium underline">
+              Create one
+            </Link>
+          </div>
+        </ThemedCard>
       </motion.div>
     </div>
   );
