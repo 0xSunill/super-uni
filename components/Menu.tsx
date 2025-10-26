@@ -1,5 +1,4 @@
-
-import { role } from "@/data";
+"use client";
 import {
   Home,
   Users,
@@ -15,16 +14,25 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import * as React from "react";
 
-type Item = {
+type NavItem = {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
-  href: string;
+  href?: string;            // optional if onClick is provided
+  onClick?: () => void;     // optional if href is provided
   visible?: string[];
   smallScreen?: boolean;
 };
 
-const menuItems = [
+type NavSection = {
+  title: string;
+  items: NavItem[];
+};
+
+const menuItems: NavSection[] = [
   {
     title: "Menu",
     items: [
@@ -43,13 +51,14 @@ const menuItems = [
   },
 ];
 
-const otherItems = [
+const otherItems: NavSection[] = [
   {
     title: "Other",
     items: [
       { icon: User, label: "Profile", href: "/profile" },
       { icon: Settings, label: "Settings", href: "/settings" },
-      { icon: LogOut, label: "Logout", href: "/logout" },
+      // Logout will get onClick inside the component (needs router)
+      { icon: LogOut, label: "Logout" },
     ],
   },
 ];
@@ -59,60 +68,78 @@ interface MenuProps {
 }
 
 const Menu: React.FC<MenuProps> = ({ labelsVisible = false }) => {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+    } finally {
+      router.push("/login");
+    }
+  };
+
+  // Inject onClick for the Logout item at render-time
+  const resolvedOtherItems = React.useMemo<NavSection[]>(() => {
+    return otherItems.map((section) => ({
+      ...section,
+      items: section.items.map((item) =>
+        item.label === "Logout" ? { ...item, onClick: handleLogout } : item
+      ),
+    }));
+  }, []);
+
+  const renderItem = (item: NavItem) => {
+    const Icon = item.icon;
+    const common =
+      `flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 ` +
+      (labelsVisible ? "justify-start" : "justify-center lg:justify-start");
+
+    if (item.onClick && !item.href) {
+      return (
+        <button key={item.label} onClick={item.onClick} className={common}>
+          <Icon className="w-5 h-5" />
+          <span className={`${labelsVisible ? "ml-3 block" : "hidden ml-3 lg:block"}`}>
+            {item.label}
+          </span>
+        </button>
+      );
+    }
+
+    // Default to link when href exists
+    return (
+      <Link key={item.label} href={item.href ?? "#"} className={common}>
+        <Icon className="w-5 h-5" />
+        <span className={`${labelsVisible ? "ml-3 block" : "hidden ml-3 lg:block"}`}>
+          {item.label}
+        </span>
+      </Link>
+    );
+  };
+
   return (
     <div className="w-full">
       {menuItems.map((section) => (
         <div key={section.title} className="mb-6">
-          <h2 className={`px-3 ${labelsVisible ? "block" : "hidden lg:block"} text-xs font-semibold uppercase tracking-wider mb-3`}>
+          <h2
+            className={`px-3 ${labelsVisible ? "block" : "hidden lg:block"} text-xs font-semibold uppercase tracking-wider mb-3`}
+          >
             {section.title}
           </h2>
-
           <div className="space-y-1">
-            {section.items.map((item: Item) => {
-              const visible = !item.visible || item.visible.includes(role);
-              if (!visible) return null;
-              const Icon = item.icon;
-              return (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 ${labelsVisible ? "justify-start" : "justify-center lg:justify-start"
-                    }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  {/* label shown either when labelsVisible=true (drawer) OR on lg screens */}
-                  <span className={`${labelsVisible ? "ml-3 block" : "hidden ml-3 lg:block"}`}>
-                    {item.label}
-                  </span>
-                </a>
-              );
-            })}
+            {section.items.map((item) => renderItem(item))}
           </div>
         </div>
       ))}
 
-      {otherItems.map((section) => (
-        <div key={section.title} className=" hidden lg:block mb-6">
-          <h2 className={`px-3 ${labelsVisible ? "block" : "hidden lg:block"} text-xs font-semibold uppercase tracking-wider mb-3`}>
+      {resolvedOtherItems.map((section) => (
+        <div key={section.title} className="hidden lg:block mb-6">
+          <h2
+            className={`px-3 ${labelsVisible ? "block" : "hidden lg:block"} text-xs font-semibold uppercase tracking-wider mb-3`}
+          >
             {section.title}
           </h2>
           <div className="space-y-1">
-            {section.items.map((item) => {
-              const Icon = item.icon;
-              return (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 ${labelsVisible ? "justify-start" : "justify-center lg:justify-start"
-                    }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className={`${labelsVisible ? "ml-3 block" : "hidden ml-3 lg:block"}`}>
-                    {item.label}
-                  </span>
-                </a>
-              );
-            })}
+            {section.items.map((item) => renderItem(item))}
           </div>
         </div>
       ))}

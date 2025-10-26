@@ -10,7 +10,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/register", "/api/login", "/api/register", "/favicon.ico", "/robots.txt", "/sitemap.xml", "/_next", "/assets", "/images", "/fonts"];
+const PUBLIC_PATHS = ["/login", "/register", "/api/login", "/api/register", "/api/logout", "/favicon.ico", "/robots.txt", "/sitemap.xml", "/_next", "/assets", "/images", "/fonts"];
 
 export function middleware(req: NextRequest) {
     const { pathname, search } = req.nextUrl;
