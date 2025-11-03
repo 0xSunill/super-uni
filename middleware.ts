@@ -1,11 +1,3 @@
-// ===============================
-// middleware.ts
-// Protect routes: require a session cookie and enforce role-based access.
-// - Public: /login, /api/login, static assets
-// - Admin pages start with /admin
-// - Teacher pages start with /teacher
-// - Student pages are top-level like /{rollNo}
-// ===============================
 
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
