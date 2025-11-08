@@ -69,7 +69,7 @@ export function middleware(req: NextRequest) {
 
   // Student pages: top-level dynamic segment like "/MCA001"
   // We treat any single-segment path (other than admin/teacher) as student page.
-  const segments = pathname.split("/").filter(Boolean);
+  const segments = pathname.split("/student").filter(Boolean);
   if (segments.length === 1 && segments[0] !== "admin" && segments[0] !== "teacher") {
     if (role !== "STUDENT") {
       const url = req.nextUrl.clone();

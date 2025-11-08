@@ -41,7 +41,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
       }
 
-      const target = redirect || `/${rollNo}`;
+      const target = redirect || `/student`;
       const res = NextResponse.json({ redirect: target });
       res.cookies.set("session", user.id, { httpOnly: true, path: "/", sameSite: "lax", secure: process.env.NODE_ENV === "production" });
       res.cookies.set("role", "STUDENT", { httpOnly: true, path: "/", sameSite: "lax", secure: process.env.NODE_ENV === "production" });

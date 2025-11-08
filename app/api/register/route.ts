@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         data: { role: Role.STUDENT, username: rollNo, passwordHash, studentId: student.id },
       });
 
-      const res = NextResponse.json({ redirect: `/${rollNo}` });
+      const res = NextResponse.json({ redirect: `/student` });
       res.cookies.set("session", user.id, { httpOnly: true, path: "/" });
       res.cookies.set("role", "STUDENT", { httpOnly: true, path: "/" });
       res.cookies.set("studentRollNo", rollNo, { httpOnly: false, path: "/" });
