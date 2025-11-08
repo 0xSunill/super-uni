@@ -21,8 +21,8 @@ import * as React from "react";
 type NavItem = {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
-  href?: string;            // optional if onClick is provided
-  onClick?: () => void;     // optional if href is provided
+  href?: string;
+  onClick?: () => void;
   visible?: string[];
   smallScreen?: boolean;
 };
@@ -55,20 +55,33 @@ const otherItems: NavSection[] = [
   {
     title: "Other",
     items: [
-      { icon: User, label: "Profile", href: "/profile" },
+      { icon: User, label: "Profile", href: "/profile" }, // ← we'll override this dynamically
       { icon: Settings, label: "Settings", href: "/settings" },
-      // Logout will get onClick inside the component (needs router)
       { icon: LogOut, label: "Logout" },
     ],
   },
 ];
 
 interface MenuProps {
-  labelsVisible?: boolean; // when true, show labels (useful inside mobile drawer)
+  labelsVisible?: boolean;
 }
 
 const Menu: React.FC<MenuProps> = ({ labelsVisible = false }) => {
   const router = useRouter();
+  const [studentRollNo, setStudentRollNo] = React.useState<string | null>(null);
+
+  // Read studentRollNo cookie (non-HTTP-only)
+  React.useEffect(() => {
+    const match = document.cookie
+      .split(";")
+      .map((s) => s.trim())
+      .find((s) => s.startsWith("studentRollNo="));
+
+    if (match) {
+      const val = decodeURIComponent(match.split("=")[1] || "");
+      setStudentRollNo(val);
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -78,15 +91,22 @@ const Menu: React.FC<MenuProps> = ({ labelsVisible = false }) => {
     }
   };
 
-  // Inject onClick for the Logout item at render-time
+  // Dynamically build "Profile" link
   const resolvedOtherItems = React.useMemo<NavSection[]>(() => {
     return otherItems.map((section) => ({
       ...section,
-      items: section.items.map((item) =>
-        item.label === "Logout" ? { ...item, onClick: handleLogout } : item
-      ),
+      items: section.items.map((item) => {
+        if (item.label === "Logout") {
+          return { ...item, onClick: handleLogout };
+        }
+        if (item.label === "Profile") {
+          const href = studentRollNo ? `/${studentRollNo}/profile` : "/login";
+          return { ...item, href };
+        }
+        return item;
+      }),
     }));
-  }, []);
+  }, [studentRollNo]);
 
   const renderItem = (item: NavItem) => {
     const Icon = item.icon;
@@ -105,7 +125,6 @@ const Menu: React.FC<MenuProps> = ({ labelsVisible = false }) => {
       );
     }
 
-    // Default to link when href exists
     return (
       <Link key={item.label} href={item.href ?? "#"} className={common}>
         <Icon className="w-5 h-5" />
