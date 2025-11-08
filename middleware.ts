@@ -40,6 +40,6 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-    // Simpler, Next 15-safe matcher. Runs on everything except _next, api, and a few public files.
+  
     matcher: ["/((?!_next|api|favicon.ico|sitemap.xml|robots.txt).*)"],
 };

@@ -129,6 +129,7 @@ export default function LoginPage({ isDark = false }: { isDark?: boolean }) {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify(body),
       });
 
